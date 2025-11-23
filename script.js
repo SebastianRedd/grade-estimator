@@ -1,3 +1,4 @@
+const API_BASE = "https://grade-estimator-api.onrender.com";
 // --------------------
 // HELPER FUNCTIONS
 // --------------------
@@ -161,7 +162,7 @@ Conclusion: Summarize the argument and restate the main idea in a deeper way.<br
 // -----------------------------
 // BUTTON LOGIC
 // -----------------------------
-document.getElementById("estimate-btn").addEventListener("click", () => {
+document.getElementById("estimate-btn").addEventListener("click", async () => {
   const gradeLevel = document.getElementById("grade-level").value;
   const prompt = document.getElementById("prompt").value.trim();
   const assignment = document.getElementById("assignment").value.trim();
@@ -171,38 +172,71 @@ document.getElementById("estimate-btn").addEventListener("click", () => {
     return;
   }
 
-  const results = estimateGrade(assignment, prompt, gradeLevel);
-
-  // Show grade
-  document.getElementById("grade-output").innerHTML = `
-    Estimated Grade: <b>${results.letter}</b>
-  `;
-
-  // Show explanation
-  document.getElementById("explanation").innerHTML = `
-    <b>Breakdown:</b><br>
-    • Words: ${results.words}<br>
-    • Sentences: ${results.sentences}<br>
-    • Avg sentence length: ${results.avgSentence.toFixed(1)} words<br>
-    • Prompt relevance: ${(results.relevance * 100).toFixed(0)}%<br>
-    • Transitions used: ${results.transitionsUsed}<br><br>
-    <i>Scores are estimated based on rubric-like features.</i>
-  `;
-
+  // Show loading state
+  document.getElementById("grade-output").innerHTML = "Estimating...";
   document.getElementById("results").style.display = "block";
 
-  // Feedback
-  const feedbackList = document.getElementById("feedback-list");
-  feedbackList.innerHTML = "";
+  try {
+    const res = await fetch(`${API_BASE}/predict`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        assignment: assignment,
+        prompt: prompt,
+        grade_level: gradeLevel,
+        assignment_type: "essay"
+      })
+    });
 
-  const feedback = generateFeedback(results, assignment, prompt);
-  feedback.forEach(tip => {
-    const li = document.createElement("li");
-    li.textContent = tip;
-    feedbackList.appendChild(li);
-  });
+    const data = await res.json();
 
-  document.getElementById("feedback-card").style.display = "block";
+    // Display the grade from your AI backend
+    document.getElementById("grade-output").innerHTML =
+      `Estimated Grade: <b>${data.letter}</b>`;
+
+    // Display AI features
+    document.getElementById("explanation").innerHTML = `
+      <b>Breakdown from AI model:</b><br>
+      • Words: ${data.features.num_words}<br>
+      • Sentences: ${data.features.num_sentences}<br>
+      • Avg sentence length: ${data.features.avg_sentence_len.toFixed(1)}<br>
+      • Prompt relevance: ${(data.features.prompt_similarity * 100).toFixed(0)}%<br>
+      • Transitions used: ${data.features.transition_count}<br>
+      • Readability score: ${data.features.readability.toFixed(1)}<br><br>
+      Confidence: ${(data.confidence * 100).toFixed(0)}%
+    `;
+
+    // FEEDBACK (same generator as before, now using data.features)
+    const feedbackList = document.getElementById("feedback-list");
+    feedbackList.innerHTML = "";
+
+    const feedback = generateFeedback(
+      {
+        words: data.features.num_words,
+        sentences: data.features.num_sentences,
+        avgSentence: data.features.avg_sentence_len,
+        relevance: data.features.prompt_similarity,
+        transitionsUsed: data.features.transition_count
+      },
+      assignment,
+      prompt
+    );
+
+    feedback.forEach(tip => {
+      const li = document.createElement("li");
+      li.textContent = tip;
+      feedbackList.appendChild(li);
+    });
+
+    document.getElementById("feedback-card").style.display = "block";
+
+  } catch (error) {
+    document.getElementById("grade-output").innerHTML =
+      "Server waking up — try again.";
+
+    document.getElementById("explanation").innerHTML =
+      "Render servers sleep after inactivity, this is normal.";
+  }
 });
 
 // SAMPLE RESPONSE
