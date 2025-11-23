@@ -1,7 +1,4 @@
 const API_BASE = "https://grade-estimator-api.onrender.com";
-// --------------------
-// HELPER FUNCTIONS
-// --------------------
 function wordCount(text) {
   return text.split(/\s+/).filter(w => w.length > 0).length;
 }
@@ -38,9 +35,6 @@ function transitionCount(text) {
   return count;
 }
 
-// -----------------------------
-// GRADE ESTIMATION
-// -----------------------------
 function estimateGrade(assignment, prompt, gradeLevel) {
 
   const words = wordCount(assignment);
@@ -95,48 +89,35 @@ function estimateGrade(assignment, prompt, gradeLevel) {
   };
 }
 
-// -----------------------------
-// AI-STYLE FEEDBACK
-// -----------------------------
 function generateFeedback(features, assignment, prompt) {
   const tips = [];
 
-  // Length feedback
   if (features.words < 180)
     tips.push("Your response is a bit short. Adding more detail or evidence would strengthen it.");
 
-  // Prompt relevance feedback
   if (features.relevance < 0.2)
     tips.push("Your writing does not fully address the prompt. Re-read the question and make sure you respond directly.");
 
-  // Transition feedback
   if (features.transitionsUsed < 2)
     tips.push("Add transition words to improve flow (for example, however, therefore).");
 
-  // Sentence length
   if (features.avgSentence > 28)
     tips.push("Some sentences are too long. Break them up for clarity.");
 
-  // Evidence check
   if (!assignment.toLowerCase().includes("because") &&
       !assignment.toLowerCase().includes("this shows")) {
     tips.push("Try explaining *why* your evidence matters. Use phrases like 'this shows that…'.");
   }
 
-  // Prompt-specific checks
   if (prompt.trim().length > 0 && features.relevance < 0.2)
     tips.push("Re-read each part of the prompt and make sure your writing answers *every* part.");
 
-  // Default
   if (tips.length === 0)
     tips.push("Strong writing overall! You can strengthen your response by adding one more piece of evidence or deeper analysis.");
 
   return tips;
 }
 
-// -----------------------------
-// SAMPLE GENERATOR
-// -----------------------------
 function generateSample(prompt, gradeLevel) {
   if (!prompt.trim())
     return "Please enter a prompt to generate a sample response.";
@@ -159,9 +140,6 @@ Conclusion: Summarize the argument and restate the main idea in a deeper way.<br
 `;
 }
 
-// -----------------------------
-// BUTTON LOGIC
-// -----------------------------
 document.getElementById("estimate-btn").addEventListener("click", async () => {
   const gradeLevel = document.getElementById("grade-level").value;
   const prompt = document.getElementById("prompt").value.trim();
@@ -172,7 +150,6 @@ document.getElementById("estimate-btn").addEventListener("click", async () => {
     return;
   }
 
-  // Show loading state
   document.getElementById("grade-output").innerHTML = "Estimating...";
   document.getElementById("results").style.display = "block";
 
@@ -190,11 +167,9 @@ document.getElementById("estimate-btn").addEventListener("click", async () => {
 
     const data = await res.json();
 
-    // Display the grade from your AI backend
     document.getElementById("grade-output").innerHTML =
       `Estimated Grade: <b>${data.letter}</b>`;
 
-    // Display AI features
     document.getElementById("explanation").innerHTML = `
       <b>Breakdown from AI model:</b><br>
       • Words: ${data.features.num_words}<br>
@@ -206,7 +181,6 @@ document.getElementById("estimate-btn").addEventListener("click", async () => {
       Confidence: ${(data.confidence * 100).toFixed(0)}%
     `;
 
-    // FEEDBACK (same generator as before, now using data.features)
     const feedbackList = document.getElementById("feedback-list");
     feedbackList.innerHTML = "";
 
@@ -239,7 +213,6 @@ document.getElementById("estimate-btn").addEventListener("click", async () => {
   }
 });
 
-// SAMPLE RESPONSE
 document.getElementById("sample-btn").addEventListener("click", () => {
   const prompt = document.getElementById("prompt").value.trim();
   const gradeLevel = document.getElementById("grade-level").value;
