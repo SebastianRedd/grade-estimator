@@ -11,7 +11,6 @@
   --shadow: rgba(225, 29, 72, 0.15);
 }
 
-/* Body */
 body {
   background: var(--bg);
   color: var(--text);
@@ -20,7 +19,6 @@ body {
   padding: 0;
 }
 
-/* Header */
 .header {
   text-align: center;
   padding: 2rem 1rem;
@@ -39,14 +37,12 @@ body {
   margin: 0;
 }
 
-/* Main */
 main {
   max-width: 900px;
   margin: 2rem auto;
   padding: 0 1rem;
 }
 
-/* Card */
 .card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -61,7 +57,6 @@ main {
   margin-top: 0;
 }
 
-/* Inputs */
 textarea,
 select {
   width: 100%;
@@ -73,7 +68,6 @@ select {
   margin-bottom: 1rem;
 }
 
-/* Buttons */
 button {
   background: var(--red);
   color: var(--rose);
@@ -90,7 +84,6 @@ button:hover {
   box-shadow: 0 0 15px rgba(225, 29, 72, 0.35);
 }
 
-/* Results */
 #grade-output {
   font-size: 1.6rem;
   color: var(--rose);
