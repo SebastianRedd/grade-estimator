@@ -6,24 +6,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Grade Estimator</title>
 
-  <!-- CSS -->
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <!-- HEADER -->
   <header class="header">
     <h1>AI Grade Estimator</h1>
     <p>Predict your grade before turning it in.</p>
   </header>
 
-  <!-- MAIN CARD -->
   <main>
     <section class="card">
       <h2>Enter Your Assignment</h2>
 
-      <!-- Assignment Type -->
       <label>Select Assignment Type:</label>
       <select id="type">
         <option value="essay">Essay</option>
@@ -32,7 +28,6 @@
         <option value="lab">Lab Report</option>
       </select>
 
-      <!-- Grade Level -->
       <label>Select Grade Level:</label>
       <select id="grade-level">
         <option value="9">9th Grade</option>
@@ -42,33 +37,28 @@
         <option value="college">College</option>
       </select>
 
-      <!-- Prompt -->
       <label>Assignment Prompt (optional):</label>
       <textarea id="prompt" placeholder="Paste the teacher's prompt here..."></textarea>
 
-      <!-- Student Assignment -->
       <label>Your Finished Assignment:</label>
       <textarea id="assignment" placeholder="Paste your full assignment here..."></textarea>
 
-      <!-- Buttons -->
       <button id="estimate-btn">Estimate Grade</button>
       <button id="sample-btn">See Sample</button>
 
     </section>
 
-    <!-- RESULTS CARD -->
     <section class="card" id="results" style="display:none;">
       <h2>Results</h2>
       <p id="grade-output"></p>
       <p id="explanation"></p>
     </section>
-    <!-- FEEDBACK CARD -->
+    
 <section class="card" id="feedback-card" style="display:none;">
   <h2>Feedback</h2>
   <ul id="feedback-list"></ul>
 </section>
 
-<!-- SAMPLE GENERATOR CARD -->
 <section class="card" id="sample-card" style="display:none;">
   <h2>Sample Response</h2>
   <p id="sample-text"></p>
@@ -76,7 +66,6 @@
 
   </main>
 
-  <!-- JS -->
   <script src="script.js"></script>
 </body>
 
