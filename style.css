@@ -1,0 +1,97 @@
+:root {
+  --bg: #0a0a0a;
+  --card: #111;
+  --border: #3f0d16;
+  --red: #e11d48;
+  --red-soft: #fb7185;
+  --rose: #fecdd3;
+  --rose-soft: #fda4af;
+  --text: #e5e5e5;
+  --muted: #a1a1aa;
+  --shadow: rgba(225, 29, 72, 0.15);
+}
+
+/* Body */
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 2rem 1rem;
+  background: radial-gradient(circle at top, var(--red), var(--bg) 70%);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 20px 60px rgba(225, 29, 72, 0.12);
+}
+
+.header h1 {
+  color: var(--rose);
+  margin-bottom: 0.3rem;
+}
+
+.header p {
+  color: var(--rose-soft);
+  margin: 0;
+}
+
+/* Main */
+main {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* Card */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 10px 30px var(--shadow);
+}
+
+.card h2 {
+  color: var(--rose-soft);
+  margin-top: 0;
+}
+
+/* Inputs */
+textarea,
+select {
+  width: 100%;
+  padding: 0.8rem;
+  background: #0f0f0f;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+/* Buttons */
+button {
+  background: var(--red);
+  color: var(--rose);
+  border: 1px solid var(--border);
+  padding: 0.8rem 1.2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--red-soft);
+  box-shadow: 0 0 15px rgba(225, 29, 72, 0.35);
+}
+
+/* Results */
+#grade-output {
+  font-size: 1.6rem;
+  color: var(--rose);
+}
