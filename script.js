@@ -1,18 +1,14 @@
 // --------------------
-// Helper Functions
+// HELPER FUNCTIONS
 // --------------------
-
-// Count words
 function wordCount(text) {
   return text.split(/\s+/).filter(w => w.length > 0).length;
 }
 
-// Count sentences
 function sentenceCount(text) {
   return (text.match(/[.!?]/g) || []).length || 1;
 }
 
-// Calculate prompt relevance (basic overlap)
 function promptRelevance(prompt, assignment) {
   if (!prompt.trim()) return 0;
 
@@ -27,7 +23,6 @@ function promptRelevance(prompt, assignment) {
   return overlap / pWords.size;
 }
 
-// Count transition/logic words
 const transitions = [
   "however", "therefore", "moreover", "in contrast", "for example",
   "because", "consequently", "on the other hand", "furthermore"
@@ -43,32 +38,16 @@ function transitionCount(text) {
 }
 
 // -----------------------------
-// Main Grade Estimator
+// GRADE ESTIMATION
 // -----------------------------
-function estimateGrade() {
-  const type = document.getElementById("type").value;
-  const gradeLevel = document.getElementById("grade-level").value;
-  const prompt = document.getElementById("prompt").value.trim();
-  const assignment = document.getElementById("assignment").value.trim();
+function estimateGrade(assignment, prompt, gradeLevel) {
 
-  if (!assignment) {
-    alert("Please paste your assignment.");
-    return;
-  }
-
-  // Extract features
   const words = wordCount(assignment);
   const sentences = sentenceCount(assignment);
   const avgSentence = words / sentences;
   const relevance = promptRelevance(prompt, assignment);
   const transitionsUsed = transitionCount(assignment);
 
-  // -----------------------------
-  // Scoring System (MVP)
-  // -----------------------------
-  let score = 0;
-
-  // Word count expectations by grade level
   const expectedLengths = {
     "9": 150,
     "10": 200,
@@ -77,30 +56,24 @@ function estimateGrade() {
     "college": 350
   };
 
+  let score = 0;
+
   if (words >= expectedLengths[gradeLevel]) score += 20;
   else score += (words / expectedLengths[gradeLevel]) * 20;
 
-  // Prompt relevance
   if (relevance >= 0.25) score += 30;
   else score += relevance * 30;
 
-  // Sentence structure
   if (avgSentence >= 12 && avgSentence <= 28) score += 20;
   else score += 10;
 
-  // Transition words
   if (transitionsUsed >= 2) score += 15;
   else score += transitionsUsed * 7;
 
-  // Depth/complexity (rough check)
   if (assignment.includes("because") || assignment.includes("this shows"))
     score += 15;
 
-  // -----------------------------
-  // Convert Score to Letter Grade
-  // -----------------------------
-  let letter;
-
+  let letter = "F";
   if (score >= 90) letter = "A";
   else if (score >= 85) letter = "A-";
   else if (score >= 80) letter = "B+";
@@ -110,33 +83,135 @@ function estimateGrade() {
   else if (score >= 60) letter = "C";
   else if (score >= 55) letter = "C-";
   else if (score >= 50) letter = "D";
-  else letter = "F";
 
-  // -----------------------------
-  // Display Results
-  // -----------------------------
-  document.getElementById("grade-output").textContent =
-    `Estimated Grade: ${letter}`;
-
-  document.getElementById("explanation").innerHTML =
-    `
-    <b>Breakdown:</b><br>
-    • Word count: ${words}<br>
-    • Sentences: ${sentences}<br>
-    • Prompt relevance: ${(relevance * 100).toFixed(0)}%<br>
-    • Transitions used: ${transitionsUsed}<br>
-    • Avg sentence length: ${avgSentence.toFixed(1)} words<br><br>
-    <i>This is an AI-style estimate based on writing features. Real ML model coming soon.</i>
-    `;
-
-  document.getElementById("results").style.display = "block";
+  return {
+    letter,
+    words,
+    sentences,
+    avgSentence,
+    relevance,
+    transitionsUsed
+  };
 }
 
 // -----------------------------
-// Button Listeners
+// AI-STYLE FEEDBACK
 // -----------------------------
-document.getElementById("estimate-btn").addEventListener("click", estimateGrade);
+function generateFeedback(features, assignment, prompt) {
+  const tips = [];
 
+  // Length feedback
+  if (features.words < 180)
+    tips.push("Your response is a bit short. Adding more detail or evidence would strengthen it.");
+
+  // Prompt relevance feedback
+  if (features.relevance < 0.2)
+    tips.push("Your writing does not fully address the prompt. Re-read the question and make sure you respond directly.");
+
+  // Transition feedback
+  if (features.transitionsUsed < 2)
+    tips.push("Add transition words to improve flow (for example, however, therefore).");
+
+  // Sentence length
+  if (features.avgSentence > 28)
+    tips.push("Some sentences are too long. Break them up for clarity.");
+
+  // Evidence check
+  if (!assignment.toLowerCase().includes("because") &&
+      !assignment.toLowerCase().includes("this shows")) {
+    tips.push("Try explaining *why* your evidence matters. Use phrases like 'this shows that…'.");
+  }
+
+  // Prompt-specific checks
+  if (prompt.trim().length > 0 && features.relevance < 0.2)
+    tips.push("Re-read each part of the prompt and make sure your writing answers *every* part.");
+
+  // Default
+  if (tips.length === 0)
+    tips.push("Strong writing overall! You can strengthen your response by adding one more piece of evidence or deeper analysis.");
+
+  return tips;
+}
+
+// -----------------------------
+// SAMPLE GENERATOR
+// -----------------------------
+function generateSample(prompt, gradeLevel) {
+  if (!prompt.trim())
+    return "Please enter a prompt to generate a sample response.";
+
+  const tones = {
+    "9": "simple and clear",
+    "10": "organized with basic evidence",
+    "11": "analytic with explanations",
+    "12": "insightful and well-structured",
+    "college": "concise, structured, and evidence-based"
+  };
+
+  return `
+<b>Sample Response (${gradeLevel} level):</b><br><br>
+Thesis: This response argues that ${prompt.slice(0, 80)}...<br><br>
+Paragraph 1: Introduce your main point and explain how it connects to the prompt.<br><br>
+Paragraph 2: Add evidence, explain its importance, and relate it back to the main argument.<br><br>
+Conclusion: Summarize the argument and restate the main idea in a deeper way.<br><br>
+<i>Writing tone:</i> ${tones[gradeLevel]}.
+`;
+}
+
+// -----------------------------
+// BUTTON LOGIC
+// -----------------------------
+document.getElementById("estimate-btn").addEventListener("click", () => {
+  const gradeLevel = document.getElementById("grade-level").value;
+  const prompt = document.getElementById("prompt").value.trim();
+  const assignment = document.getElementById("assignment").value.trim();
+
+  if (!assignment) {
+    alert("Please paste your assignment.");
+    return;
+  }
+
+  const results = estimateGrade(assignment, prompt, gradeLevel);
+
+  // Show grade
+  document.getElementById("grade-output").innerHTML = `
+    Estimated Grade: <b>${results.letter}</b>
+  `;
+
+  // Show explanation
+  document.getElementById("explanation").innerHTML = `
+    <b>Breakdown:</b><br>
+    • Words: ${results.words}<br>
+    • Sentences: ${results.sentences}<br>
+    • Avg sentence length: ${results.avgSentence.toFixed(1)} words<br>
+    • Prompt relevance: ${(results.relevance * 100).toFixed(0)}%<br>
+    • Transitions used: ${results.transitionsUsed}<br><br>
+    <i>Scores are estimated based on rubric-like features.</i>
+  `;
+
+  document.getElementById("results").style.display = "block";
+
+  // Feedback
+  const feedbackList = document.getElementById("feedback-list");
+  feedbackList.innerHTML = "";
+
+  const feedback = generateFeedback(results, assignment, prompt);
+  feedback.forEach(tip => {
+    const li = document.createElement("li");
+    li.textContent = tip;
+    feedbackList.appendChild(li);
+  });
+
+  document.getElementById("feedback-card").style.display = "block";
+});
+
+// SAMPLE RESPONSE
 document.getElementById("sample-btn").addEventListener("click", () => {
-  alert("Sample generator coming in Phase 3!");
+  const prompt = document.getElementById("prompt").value.trim();
+  const gradeLevel = document.getElementById("grade-level").value;
+
+  const text = generateSample(prompt, gradeLevel);
+
+  document.getElementById("sample-text").innerHTML = text;
+  document.getElementById("sample-card").style.display = "block";
 });
